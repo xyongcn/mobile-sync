@@ -1,33 +1,33 @@
-################################################
-Ô­Ê¼µØÍ¼¼ÓÔØÈëÊı¾İ¿â³öÏÖÎÊÌâ£º
-È±ÉÙĞèÒªµÄĞĞ£º
+ï»¿################################################
+åŸå§‹åœ°å›¾åŠ è½½å…¥æ•°æ®åº“å‡ºç°é—®é¢˜ï¼š
+ç¼ºå°‘éœ€è¦çš„è¡Œï¼š
 routing=# ALTER TABLE beijingmap RENAME COLUMN geom to the_geom;
 ALTER TABLE
 routing=# ALTER TABLE beijingmap ADD COLUMN target integer;
 ALTER TABLE
 
-´íÎóÏÔÊ¾£º
+é”™è¯¯æ˜¾ç¤ºï¼š
 routing=# select pgr_analyzegraph('beijingmap', 0.000001);
-×¢Òâ:  PROCESSING:
-×¢Òâ:  pgr_analyzeGraph('beijingmap',1e-006,'the_geom','id','source','target','t
+æ³¨æ„:  PROCESSING:
+æ³¨æ„:  pgr_analyzeGraph('beijingmap',1e-006,'the_geom','id','source','target','t
 rue')
-×¢Òâ:  Performing checks, pelase wait...
-×¢Òâ:  ERROR: source column "source"  not found in public.beijingmap
+æ³¨æ„:  Performing checks, pelase wait...
+æ³¨æ„:  ERROR: source column "source"  not found in public.beijingmap
  pgr_analyzegraph
 ------------------
  FAIL
-(1 ĞĞ¼ÇÂ¼)
+(1 è¡Œè®°å½•)
 
-½â¾öÎÊÌâ³¢ÊÔ£º
+è§£å†³é—®é¢˜å°è¯•ï¼š
 #########################################################
-³¢ÊÔ×Ô¶¯´´½¨ĞèÒªµÄ½ÚµãĞĞÁĞ£º
+å°è¯•è‡ªåŠ¨åˆ›å»ºéœ€è¦çš„èŠ‚ç‚¹è¡Œåˆ—ï¼š
 routing=# SELECT pgr_nodeNetwork('beijingmap', 0.001);
-×¢Òâ:  PROCESSING:
-×¢Òâ:  pgr_nodeNetwork('beijingmap',0.001,'the_geom','id','noded')
-×¢Òâ:  Performing checks, pelase wait .....
-×¢Òâ:  Processing, pelase wait .....
-´íÎó:  line_locate_point: 1st arg isnt a line
-±³¾°:  SQL Óï¾ä "create temp table inter_loc on commit drop as ( select * from (
+æ³¨æ„:  PROCESSING:
+æ³¨æ„:  pgr_nodeNetwork('beijingmap',0.001,'the_geom','id','noded')
+æ³¨æ„:  Performing checks, pelase wait .....
+æ³¨æ„:  Processing, pelase wait .....
+é”™è¯¯:  line_locate_point: 1st arg isnt a line
+èƒŒæ™¯:  SQL è¯­å¥ "create temp table inter_loc on commit drop as ( select * from (
 
         (select l1id, l2id, st_linelocatepoint(line,source) as locus from interg
 eom)
@@ -35,47 +35,47 @@ eom)
         (select l1id, l2id, st_linelocatepoint(line,target) as locus from interg
 eom)) as foo
         where locus<>0 and locus<>1)"
-ÔÚEXECUTE Óï¾äµÄµÚ184ĞĞµÄPL/pgSQLº¯Êıpgr_nodenetwork(text,double precision,text,
+åœ¨EXECUTE è¯­å¥çš„ç¬¬184è¡Œçš„PL/pgSQLå‡½æ•°pgr_nodenetwork(text,double precision,text,
 text,text)
-Ä³Ğ©Êı¾İ²»·ûµ¼ÖÂ´´½¨Ê§°Ü
+æŸäº›æ•°æ®ä¸ç¬¦å¯¼è‡´åˆ›å»ºå¤±è´¥
 
-Ö±½ÓÌí¼ÓĞèÒªµÄĞĞ£º
+ç›´æ¥æ·»åŠ éœ€è¦çš„è¡Œï¼š
 routing=# ALTER TABLE beijingmap ADD COLUMN source integer;
 ALTER TABLE
 
-Ö±½ÓÌí¼Óºó»¹ÊÇÈ±ÉÙÊı¾İ£¬µ«ÊÇÒÑ¾­ÊµÏÖÁËºÜ¶àÊı¾İµÄÍØÆËÂß¼­ÉèÖÃ£¬ËµÃ÷Ö»ÊÇ²¿·ÖÊı¾İ´æÔÚÎÊÌâ£º
+ç›´æ¥æ·»åŠ åè¿˜æ˜¯ç¼ºå°‘æ•°æ®ï¼Œä½†æ˜¯å·²ç»å®ç°äº†å¾ˆå¤šæ•°æ®çš„æ‹“æ‰‘é€»è¾‘è®¾ç½®ï¼Œè¯´æ˜åªæ˜¯éƒ¨åˆ†æ•°æ®å­˜åœ¨é—®é¢˜ï¼š
 routing=# select pgr_createTopology('beijingmap',0.000001);
-×¢Òâ:  PROCESSING:
-×¢Òâ:  pgr_createTopology('beijingmap',1e-006,'the_geom','id','source','target',
+æ³¨æ„:  PROCESSING:
+æ³¨æ„:  pgr_createTopology('beijingmap',1e-006,'the_geom','id','source','target',
 'true')
-×¢Òâ:  Performing checks, pelase wait .....
-×¢Òâ:  Creating Topology, Please wait...
-×¢Òâ:  ²Ù×÷·û²»´æÔÚ: character varying = bigint
-×¢Òâ:  UPDATE public.beijingmap SET source = 1,target = 2 WHERE id =  5956500254
+æ³¨æ„:  Performing checks, pelase wait .....
+æ³¨æ„:  Creating Topology, Please wait...
+æ³¨æ„:  æ“ä½œç¬¦ä¸å­˜åœ¨: character varying = bigint
+æ³¨æ„:  UPDATE public.beijingmap SET source = 1,target = 2 WHERE id =  5956500254
 2
  pgr_createtopology
 --------------------
  FAIL
-(1 ĞĞ¼ÇÂ¼)
+(1 è¡Œè®°å½•)
 #####################################################
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%success%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-Ê×ÏÈ´´Á¢ÏàÓ¦µÄÊı¾İ¿â¸ñÊ½£º
+é¦–å…ˆåˆ›ç«‹ç›¸åº”çš„æ•°æ®åº“æ ¼å¼ï¼š
 createdb mydatabase
 psql mydatabase -c "create extension postgis"
 psql mydatabase -c "create extension pgrouting"
 
 
-³¢ÊÔÓÃÆäËûÊı¾İ½øĞĞ¹¤×÷£º
+å°è¯•ç”¨å…¶ä»–æ•°æ®è¿›è¡Œå·¥ä½œï¼š
 ##################################################
-¿ÉÄÜÓÃµ½µÄ²Î¿¼Á´½Ó£º
+å¯èƒ½ç”¨åˆ°çš„å‚è€ƒé“¾æ¥ï¼š
 http://workshop.pgrouting.org/
-http://metro.teczno.com/#beijing  µØÍ¼ÏÂÔØ
-http://www.bostongis.com/PrinterFriendly.aspx?content_name=pgrouting_osm2po_1  osm2po  ½«Ô­Ê¼µØÍ¼±äÎªsqlÎÄ¼şµÄÈí¼ş
+http://metro.teczno.com/#beijing  åœ°å›¾ä¸‹è½½
+http://www.bostongis.com/PrinterFriendly.aspx?content_name=pgrouting_osm2po_1  osm2po  å°†åŸå§‹åœ°å›¾å˜ä¸ºsqlæ–‡ä»¶çš„è½¯ä»¶
 #####################################################
-±ê×¼²½Öè£º
+æ ‡å‡†æ­¥éª¤ï¼š
  SELECT pgr_createTopology('hh_2po_4pgr', 0.00001, 'geom_way', 'id');
   CREATE INDEX source_idx ON hh_2po_4pgr("source");
   
@@ -88,47 +88,47 @@ length::double precision as cost from beijing',30,60,false,false);
 
 ###############################################
 
-ÔÚ¼ÓÈëÖĞ¹úµØÇøµÄÊı¾İÊ±³öÏÖ'GBK'Óë'UTF-8'×Ö·û±àÂëÎÊÌâ£¬
-½â¾ö·½·¨Îª£º
-ÔÚÊı¾İ¿âÏÂ¸ü¸Ä£º
+åœ¨åŠ å…¥ä¸­å›½åœ°åŒºçš„æ•°æ®æ—¶å‡ºç°'GBK'ä¸'UTF-8'å­—ç¬¦ç¼–ç é—®é¢˜ï¼Œ
+è§£å†³æ–¹æ³•ä¸ºï¼š
+åœ¨æ•°æ®åº“ä¸‹æ›´æ”¹ï¼š
  set client_encoding = 'gbk';
- »ò
+ æˆ–
  set client_encoding = 'UTF8'; 
-²åÈëÊı¾İ¿â
+æ’å…¥æ•°æ®åº“
  \i  d:/gisdata/beijing/beijing.sql
 
 ###############################################
 
 
-×Ü½áºóÊı¾İ¿â²Ù×÷Á÷³Ì£º
+æ€»ç»“åæ•°æ®åº“æ“ä½œæµç¨‹ï¼š
 ##################################################
-Éú³ÉsqlÎÄ¼ş
-¸Ä±äosm2pgsqlÎÄ¼ş¼ĞÖĞµÄdemo.batÎÄ¼şÖĞµÄosm.pbfÎÄ¼şÎ»ÖÃ
-ÔËĞĞdemo.bat,Êä³öhh\hh_2po_4pgr.sqlÎÄ¼ş
-½«sqlÎÄ¼şµ¼ÈëÊı¾İ¿â£¬Èç¹ûÓĞ±àÂëÎÊÌâ£¬ÈçÉÏ½â¾ö
-²åÈëÊı¾İ¿â£º
+ç”Ÿæˆsqlæ–‡ä»¶
+æ”¹å˜osm2pgsqlæ–‡ä»¶å¤¹ä¸­çš„demo.batæ–‡ä»¶ä¸­çš„osm.pbfæ–‡ä»¶ä½ç½®
+è¿è¡Œdemo.bat,è¾“å‡ºhh\hh_2po_4pgr.sqlæ–‡ä»¶
+å°†sqlæ–‡ä»¶å¯¼å…¥æ•°æ®åº“ï¼Œå¦‚æœæœ‰ç¼–ç é—®é¢˜ï¼Œå¦‚ä¸Šè§£å†³
+æ’å…¥æ•°æ®åº“ï¼š
  \i  d:/gisdata/beijing/beijing.sql
 
-´´½¨µØÍ¼Âß¼­Í¼(±ß-µã¹ØÏµ)£º
+åˆ›å»ºåœ°å›¾é€»è¾‘å›¾(è¾¹-ç‚¹å…³ç³»)ï¼š
 SELECT pgr_createTopology('beijing',0.00001,'geom_way','id');
 
-´´½¨Ë÷Òı(¼ÇÂ¼µãµÄË÷Òı·½±ã¼ÆËã)£º
+åˆ›å»ºç´¢å¼•(è®°å½•ç‚¹çš„ç´¢å¼•æ–¹ä¾¿è®¡ç®—)ï¼š
 routing=# create index source_index on beijing("source");
 CREATE INDEX
 routing=# create index target_index on beijing("target");
 CREATE INDEX
 
-¼ì²éÊÇ·ñ´æÔÚlength¼°reverse_costÊôĞÔ(±ßµÄ³¤¶ÈÊôĞÔ)£º
+æ£€æŸ¥æ˜¯å¦å­˜åœ¨lengthåŠreverse_costå±æ€§(è¾¹çš„é•¿åº¦å±æ€§)ï¼š
 routing=# ALTER table beijing add column length double precision;
 ALTER TABLE
 routing=# ALTER table beijing add column reverse_cost double precision;
-´íÎó:  ¹ØÏµ "reverse_cost" µÄÊôĞÔ "beijing" ÒÑ¾­´æÔÚ
+é”™è¯¯:  å…³ç³» "reverse_cost" çš„å±æ€§ "beijing" å·²ç»å­˜åœ¨
 routing=# update beijing set length=reverse_cost;
 UPDATE 64240
 
-³¢ÊÔÊÇ·ñÄÜ¹»Ê¶±ğÂ·¾¶(¼ì²é)£º
+å°è¯•æ˜¯å¦èƒ½å¤Ÿè¯†åˆ«è·¯å¾„(æ£€æŸ¥)ï¼š
 routing=# select * from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',30,60,false,false);
-³É¹¦ÔòÊä³öÀàËÆÈçÏÂµã¼¯ĞÅÏ¢£º
+æˆåŠŸåˆ™è¾“å‡ºç±»ä¼¼å¦‚ä¸‹ç‚¹é›†ä¿¡æ¯ï¼š
  seq |  id1  |  id2  |     cost
 -----+-------+-------+---------------
    0 |    30 |  5081 |  0.0021958214
@@ -143,39 +143,39 @@ routing=# select * from pgr_dijkstra('select id,source::integer,target::integer,
    9 |  6102 |  5059 |  0.0017558925
   10 |  6101 |  5058 |  0.0057999454
 
-³¢ÊÔÒÔÂ·¾¶Ãû³ÆĞÎÊ½½øĞĞÊä³ö£º
+å°è¯•ä»¥è·¯å¾„åç§°å½¢å¼è¿›è¡Œè¾“å‡ºï¼š
 routing=# select r.id1,s1.osm_name,r.id2,s2.osm_name from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijing',30,60,false,false) AS r INNER JOIN beijing as s1 ON r.id1=s1.id INNER JOIN beijing as s2 On r.id2 = s2.id;
   id1  |    osm_name     |  id2  |            osm_name
 -------+-----------------+-------+--------------------------------
-    30 | ÄÏĞÂ»ª½Ö        |  5081 |
-    29 | ÄÏĞÂ»ª½Ö        |  5080 | Í¨ºú´ó½Ö
-  6120 | ¾°Ì©ÇÅ          |  5079 | Í¨ºú´ó½Ö
-  6108 | Xizhaosi Jie    |  5065 | Í¨ºú´ó½Ö
-  6107 | Xizhaosi Jie    |  5064 | Í¨ºú´ó½Ö
-  6106 | Xizhaosi Jie    |  5063 | Í¨ºú´ó½Ö
-  6105 | Xizhaosi Jie    |  5062 | Í¨ºú´ó½Ö
-  6104 | Xizhaosi Jie    |  5061 | Í¨ºú´ó½Ö
-  6103 | Tiyuguan Lu     |  5060 | Í¨ºú´ó½Ö
-  6102 | Tiyuguan Lu     |  5059 | Í¨ºú´ó½Ö
-  6101 |                 |  5058 | Í¨ºú´ó½Ö
-  6100 | Tiantan Donglu  |  5057 | Í¨ºú´ó½Ö
-  6099 | Tiantan Donglu  |  5056 | Í¨ºú´ó½Ö
-  6098 | Tiantan Donglu  |  5055 | Í¨ºú´ó½Ö
-  6097 | Tiantan Donglu  |  5054 | Í¨ºú´ó½Ö
-  4204 | Huguosi Xixiang |  5053 | Í¨ºú´ó½Ö
-  6072 |                 |  5052 | Í¨ºú´ó½Ö
-  6074 | ·½×¯»·µº        |  5051 | Í¨ºú´ó½Ö
+    30 | å—æ–°åè¡—        |  5081 |
+    29 | å—æ–°åè¡—        |  5080 | é€šèƒ¡å¤§è¡—
+  6120 | æ™¯æ³°æ¡¥          |  5079 | é€šèƒ¡å¤§è¡—
+  6108 | Xizhaosi Jie    |  5065 | é€šèƒ¡å¤§è¡—
+  6107 | Xizhaosi Jie    |  5064 | é€šèƒ¡å¤§è¡—
+  6106 | Xizhaosi Jie    |  5063 | é€šèƒ¡å¤§è¡—
+  6105 | Xizhaosi Jie    |  5062 | é€šèƒ¡å¤§è¡—
+  6104 | Xizhaosi Jie    |  5061 | é€šèƒ¡å¤§è¡—
+  6103 | Tiyuguan Lu     |  5060 | é€šèƒ¡å¤§è¡—
+  6102 | Tiyuguan Lu     |  5059 | é€šèƒ¡å¤§è¡—
+  6101 |                 |  5058 | é€šèƒ¡å¤§è¡—
+  6100 | Tiantan Donglu  |  5057 | é€šèƒ¡å¤§è¡—
+  6099 | Tiantan Donglu  |  5056 | é€šèƒ¡å¤§è¡—
+  6098 | Tiantan Donglu  |  5055 | é€šèƒ¡å¤§è¡—
+  6097 | Tiantan Donglu  |  5054 | é€šèƒ¡å¤§è¡—
+  4204 | Huguosi Xixiang |  5053 | é€šèƒ¡å¤§è¡—
+  6072 |                 |  5052 | é€šèƒ¡å¤§è¡—
+  6074 | æ–¹åº„ç¯å²›        |  5051 | é€šèƒ¡å¤§è¡—
 ############################################################
 
-ÒÔµØÀíĞÅÏ¢Êä³öµ¼º½½á¹û(¿ÉÊ¹ÓÃQGIS²é¿´ÊÓÍ¼)£º
+ä»¥åœ°ç†ä¿¡æ¯è¾“å‡ºå¯¼èˆªç»“æœ(å¯ä½¿ç”¨QGISæŸ¥çœ‹è§†å›¾)ï¼š
 create table test as select r.id2,s1.geom_way as the_geom from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',30,60,false,false) AS r INNER JOIN beijingpbf as s1 ON r.id2=s1.id ;
 
  
-ÓëgeoserverÁ¬½Ó:
+ä¸geoserverè¿æ¥:
 http://workshop.pgrouting.org/chapters/geoserver.html
-¸ù¾İÒÔÉÏÒ³ÃæÅäÖÃ£¬½«SQLÓï¾äÌæ»»Îª
+æ ¹æ®ä»¥ä¸Šé¡µé¢é…ç½®ï¼Œå°†SQLè¯­å¥æ›¿æ¢ä¸º
 select r.id2,s1.geom_way as the_geom from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',%id1%,%id2%,false,false) AS r INNER JOIN beijingpbf as s1 ON r.id2=s1.id ;
-ÉèÖÃ³É¹¦ºóÊ¹ÓÃ¿ÉÔËĞĞhtml³¢ÊÔÔËĞĞ
+è®¾ç½®æˆåŠŸåä½¿ç”¨å¯è¿è¡Œhtmlå°è¯•è¿è¡Œ
 
 
 

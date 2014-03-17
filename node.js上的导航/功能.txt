@@ -1,1 +1,0 @@
-能分别使用geoserver与openlayers远端或本地画图，目前openlayers不提供缓存功能
