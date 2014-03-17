@@ -1,0 +1,185 @@
+################################################
+原始地图加载入数据库出现问题：
+缺少需要的行：
+routing=# ALTER TABLE beijingmap RENAME COLUMN geom to the_geom;
+ALTER TABLE
+routing=# ALTER TABLE beijingmap ADD COLUMN target integer;
+ALTER TABLE
+
+错误显示：
+routing=# select pgr_analyzegraph('beijingmap', 0.000001);
+注意:  PROCESSING:
+注意:  pgr_analyzeGraph('beijingmap',1e-006,'the_geom','id','source','target','t
+rue')
+注意:  Performing checks, pelase wait...
+注意:  ERROR: source column "source"  not found in public.beijingmap
+ pgr_analyzegraph
+------------------
+ FAIL
+(1 行记录)
+
+解决问题尝试：
+#########################################################
+尝试自动创建需要的节点行列：
+routing=# SELECT pgr_nodeNetwork('beijingmap', 0.001);
+注意:  PROCESSING:
+注意:  pgr_nodeNetwork('beijingmap',0.001,'the_geom','id','noded')
+注意:  Performing checks, pelase wait .....
+注意:  Processing, pelase wait .....
+错误:  line_locate_point: 1st arg isnt a line
+背景:  SQL 语句 "create temp table inter_loc on commit drop as ( select * from (
+
+        (select l1id, l2id, st_linelocatepoint(line,source) as locus from interg
+eom)
+         union
+        (select l1id, l2id, st_linelocatepoint(line,target) as locus from interg
+eom)) as foo
+        where locus<>0 and locus<>1)"
+在EXECUTE 语句的第184行的PL/pgSQL函数pgr_nodenetwork(text,double precision,text,
+text,text)
+某些数据不符导致创建失败
+
+直接添加需要的行：
+routing=# ALTER TABLE beijingmap ADD COLUMN source integer;
+ALTER TABLE
+
+直接添加后还是缺少数据，但是已经实现了很多数据的拓扑逻辑设置，说明只是部分数据存在问题：
+routing=# select pgr_createTopology('beijingmap',0.000001);
+注意:  PROCESSING:
+注意:  pgr_createTopology('beijingmap',1e-006,'the_geom','id','source','target',
+'true')
+注意:  Performing checks, pelase wait .....
+注意:  Creating Topology, Please wait...
+注意:  操作符不存在: character varying = bigint
+注意:  UPDATE public.beijingmap SET source = 1,target = 2 WHERE id =  5956500254
+2
+ pgr_createtopology
+--------------------
+ FAIL
+(1 行记录)
+#####################################################
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%success%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+首先创立相应的数据库格式：
+createdb mydatabase
+psql mydatabase -c "create extension postgis"
+psql mydatabase -c "create extension pgrouting"
+
+
+尝试用其他数据进行工作：
+##################################################
+可能用到的参考链接：
+http://workshop.pgrouting.org/
+http://metro.teczno.com/#beijing  地图下载
+http://www.bostongis.com/PrinterFriendly.aspx?content_name=pgrouting_osm2po_1  osm2po  将原始地图变为sql文件的软件
+#####################################################
+标准步骤：
+ SELECT pgr_createTopology('hh_2po_4pgr', 0.00001, 'geom_way', 'id');
+  CREATE INDEX source_idx ON hh_2po_4pgr("source");
+  
+ ALTER TABLE ways ADD COLUMN reverse_cost double precision;
+UPDATE ways SET reverse_cost = length;
+pgr_costResult[] pgr_dijkstra(text sql, integer source, integer target, boolean directed, boolean has_rcost);
+
+routing=# select * from pgr_dijkstra('select id,source::integer,target::integer,
+length::double precision as cost from beijing',30,60,false,false);
+
+###############################################
+
+在加入中国地区的数据时出现'GBK'与'UTF-8'字符编码问题，
+解决方法为：
+在数据库下更改：
+ set client_encoding = 'gbk';
+ 或
+ set client_encoding = 'UTF8'; 
+插入数据库
+ \i  d:/gisdata/beijing/beijing.sql
+
+###############################################
+
+
+总结后数据库操作流程：
+##################################################
+生成sql文件
+改变osm2pgsql文件夹中的demo.bat文件中的osm.pbf文件位置
+运行demo.bat,输出hh\hh_2po_4pgr.sql文件
+将sql文件导入数据库，如果有编码问题，如上解决
+插入数据库：
+ \i  d:/gisdata/beijing/beijing.sql
+
+创建地图逻辑图(边-点关系)：
+SELECT pgr_createTopology('beijing',0.00001,'geom_way','id');
+
+创建索引(记录点的索引方便计算)：
+routing=# create index source_index on beijing("source");
+CREATE INDEX
+routing=# create index target_index on beijing("target");
+CREATE INDEX
+
+检查是否存在length及reverse_cost属性(边的长度属性)：
+routing=# ALTER table beijing add column length double precision;
+ALTER TABLE
+routing=# ALTER table beijing add column reverse_cost double precision;
+错误:  关系 "reverse_cost" 的属性 "beijing" 已经存在
+routing=# update beijing set length=reverse_cost;
+UPDATE 64240
+
+尝试是否能够识别路径(检查)：
+routing=# select * from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',30,60,false,false);
+成功则输出类似如下点集信息：
+ seq |  id1  |  id2  |     cost
+-----+-------+-------+---------------
+   0 |    30 |  5081 |  0.0021958214
+   1 |    29 |  5080 |  0.0020915277
+   2 |  6120 |  5079 |  0.0036975096
+   3 |  6108 |  5065 |   0.002346254
+   4 |  6107 |  5064 |  0.0059292326
+   5 |  6106 |  5063 |  0.0026476951
+   6 |  6105 |  5062 |    0.00752547
+   7 |  6104 |  5061 |   0.012994489
+   8 |  6103 |  5060 |  0.0028074556
+   9 |  6102 |  5059 |  0.0017558925
+  10 |  6101 |  5058 |  0.0057999454
+
+尝试以路径名称形式进行输出：
+routing=# select r.id1,s1.osm_name,r.id2,s2.osm_name from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijing',30,60,false,false) AS r INNER JOIN beijing as s1 ON r.id1=s1.id INNER JOIN beijing as s2 On r.id2 = s2.id;
+  id1  |    osm_name     |  id2  |            osm_name
+-------+-----------------+-------+--------------------------------
+    30 | 南新华街        |  5081 |
+    29 | 南新华街        |  5080 | 通胡大街
+  6120 | 景泰桥          |  5079 | 通胡大街
+  6108 | Xizhaosi Jie    |  5065 | 通胡大街
+  6107 | Xizhaosi Jie    |  5064 | 通胡大街
+  6106 | Xizhaosi Jie    |  5063 | 通胡大街
+  6105 | Xizhaosi Jie    |  5062 | 通胡大街
+  6104 | Xizhaosi Jie    |  5061 | 通胡大街
+  6103 | Tiyuguan Lu     |  5060 | 通胡大街
+  6102 | Tiyuguan Lu     |  5059 | 通胡大街
+  6101 |                 |  5058 | 通胡大街
+  6100 | Tiantan Donglu  |  5057 | 通胡大街
+  6099 | Tiantan Donglu  |  5056 | 通胡大街
+  6098 | Tiantan Donglu  |  5055 | 通胡大街
+  6097 | Tiantan Donglu  |  5054 | 通胡大街
+  4204 | Huguosi Xixiang |  5053 | 通胡大街
+  6072 |                 |  5052 | 通胡大街
+  6074 | 方庄环岛        |  5051 | 通胡大街
+############################################################
+
+以地理信息输出导航结果(可使用QGIS查看视图)：
+create table test as select r.id2,s1.geom_way as the_geom from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',30,60,false,false) AS r INNER JOIN beijingpbf as s1 ON r.id2=s1.id ;
+
+ 
+与geoserver连接:
+http://workshop.pgrouting.org/chapters/geoserver.html
+根据以上页面配置，将SQL语句替换为
+select r.id2,s1.geom_way as the_geom from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',%id1%,%id2%,false,false) AS r INNER JOIN beijingpbf as s1 ON r.id2=s1.id ;
+设置成功后使用可运行html尝试运行
+
+
+
+
+
+
+
