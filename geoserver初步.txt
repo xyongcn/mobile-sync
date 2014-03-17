@@ -1,0 +1,66 @@
+﻿1.geoserver安装
+1.1下载geoserver windows下安装包，直接安装
+1.2下载geoserver的tomcat下使用的框架安装
+2.下载安装postgresql及postgis
+shpfile文件导入
+执行以下命令 需CMD 切换之%postgresql_home%\bin下
+C:\Documents and Settings\Administrator>cd E:\Program Files\PostgreSQL\9.0\bin
+shp2pgsql 命令 将shp生成对应的sql脚本
+如：shp2pgsql -W "GBK" D:\CampusGISProject\new_pku_vector\viwpt.shp viwpt > D:\CampusGISProject\new_pku_vector\viwpt.sql 
+       这里的-W "GBK"代表字符编码的转换,D:\CampusGISProject\new_pku_vector\viwpt.shp则是要生成sql脚本的 shp文件.viwpt是创建数据表的表名,>不能少,D:\CampusGISProject\new_pku_vector \viwpt.sql则是要生成SQL文件的绝对目录
+运行psql命令 入库
+psql -U postgres -d nyc -f D:\CampusGISProject\new_pku_vector\viwpt.sql 
+其中 nyc是数据库名,postgres是该数据库的用户
+执行成功后,刷新该数据库,就可以看到新生成的数据表viwpt, 这样viwpt.shp数据就成功导入到了postgis中了
+
+shp2pgsql -s 4326 -W "UTF-8" /home/winfar/StatesProvinces.shp StatesProvinces > /usr/pgsql - 9.1/share/StatesProvinces.sql -d gis -U gis
+-s 用什么坐标参考系
+-W 指定 shp文件的字符集
+StatesProvinces  生成的表名
+然后指定生成的Sql输出到哪就ok了
+
+geoserver方法：
+http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
+出现无template_postgis解决办法：
+createdb.exe -U postgres template_postgis
+createlang.exe -U postgres plpgsql template_postgis
+D:\postgre\bin>psql -U postgres -d template_postgis -f d:\postgre\share\contrib\postgis-2.1\postgis.sql
+D:\postgre\bin>psql -U postgres -d template_postgis -f d:\postgre\share\contrib\postgis-2.1\spatial_ref_sys.sql
+
+
+
+3.连接
+             Geoserver如何访问shapefile或PostGIS数据库
+                                    李泉 陈玉进 跬步科技http://www.creable.cn
+geoserver中一个FeatureType对应一个地图的图层，同一个FeatureType里的所有要素的几何类型都相同，即不允许点和线同层等类似情况出现。FeatureType中规定着这个图层的样式范围等信息，创建它之前，首先要创建“数据库”，也就是数据源。geoserver支持许多不同类型的数据，下面以shapefile和postgis空间数据库为例说明如何添加数据。
+在添加数据之前，您需要新建一个名字空间，具体过程如下：
+①     使用IE浏览器进入http://localhost:8080/geoserver/页面。
+②     点击“配置”，并输入之前您设置的用户名和密码登陆。
+③     再点击“数据”、“名字空间”、“新建”。
+④     输入“前缀”，即名字空间的名字。
+⑤     输入url，例如可以输入贵公司的网址。（前缀和url在今后的客户端xml配置中需要用到）。
+⑥     按下窗口左侧的“应用”、“保存”两个按钮。
+如何添加shapefile类型数据到geoserver？
+①     首先将××.shp ××.shx ××.dbf文件放入geoserver\data\data文件夹中。
+②     使用IE浏览器进入http://localhost:8080/geoserver/页面。
+③     点击“配置”，并输入之前您设置的用户名和密码登陆。
+④     再点击“数据”、“数据库”、“新建”，Feature数据描述选择Shapefile，Feature数据集 ID输入这个shapefile数据源的名称。
+⑤     之后出现“Feature数据集编辑器”界面，名字空间选择您之前设置的名字空间，url中输入file:data/×××.shp，charset输入GB2312。按下“提交”按钮。
+⑥     按下窗口左侧的“应用”、“保存”两个按钮。
+⑦     点击“配置”、“数据”、“FeatureTypes”、“新建”。FeatureType名选择×××:::×××，×××为您上面输入的Feature数据集 ID，按下“新建”按钮。
+⑧     之后出现“FeatureType 编辑器”界面，样式选择一个您设定的样式（样式如何制作在后面将详细介绍）。SRS（空间引用系统）输入数据的坐标系，如果为WGS84那么就输入4326。按下边界盒状模型旁边的“生成”按钮，即可自动生成改shapefile的范围，您可以手动修改这些值。按下页面最下方的“提交”按钮。
+⑨     按下窗口左侧的“应用”、“保存”两个按钮。
+在添加postgis数据到geoserver之前，您需要将数据导入到postgis数据库中，如何将shapefile数据导入postgis数据库？操作如下：
+①     生成sql脚本。使用shp2pgsql程序生成shp文件对应的sql脚本。假定PostgreSQL安装路径为默认，那么单击windows开始菜单、运行、输入cmd、回车。输入命令行"C:\Program Files\PostgreSQL\8.3\bin\shp2pgsql" -W "GBK" D:\×××.shp ××× > D:\×××.sql 其中×××为shp文件名，盘符根据你shp文件所在位置设置。
+②     运行步骤1生成的sql脚本，导入数据到数据库。使用psql程序运行脚本。假定PostgreSQL安装路径为默认，那么单击windows开始菜单、运行、输入cmd、回车。输入命令行"C:\Program Files\PostgreSQL\8.3\bin\psql" -d postgis -f D:\×××.sql postgres 其中×××为sql脚本文件名，postgis为数据库名。之后提示您输入数据库密码，输入密码之后，按下回车，自动将数据导入数据库。
+如何添加postgis数据到geoserver？
+①     使用IE浏览器进入http://localhost:8080/geoserver/页面。
+②     点击“配置”，并输入之前您设置的用户名和密码登陆。
+③     再点击“数据”、“数据库”、“新建”，Feature数据描述选择Postgis，Feature数据集 ID输入这个postgis数据源的名称。
+④     之后出现“Feature数据集编辑器”界面，名字空间选择您之前设置的名字空间，host输入Postgis数据库所在服务器的ip地址，如果是本机，那就输入localhost，port输入postgis数据库的端口，默认为5432，database输入postgis数据库的名称，一般为postgis，这取决与您安装postgis时设定的名字。user输入默认的postgres。passwd输入密码。按下“提交”按钮。
+⑤     按下窗口左侧的“应用”、“保存”两个按钮。
+⑥     点击“配置”、“数据”、“FeatureTypes”、“新建”。FeatureType名选择AAA:::BBB，其中AAA为您上面输入的Feature数据集 ID，BBB为postgis数据库中的一个表的名字，这个表应该是您之前导入的。
+⑦     之后出现“FeatureType 编辑器”界面，样式选择一个您设定的样式（样式如何制作在后面将详细介绍）。SRS（空间引用系统）输入数据的坐标系，如果为WGS84那么就输入4326。按下边界盒状模型旁边的“生成”按钮，即可自动生成改shapefile的范围，您可以手动修改这些值。按下页面最下方的“提交”按钮。
+⑧     按下窗口左侧的“应用”、“保存”两个按钮。
+
+4.导航pgrouting使用
