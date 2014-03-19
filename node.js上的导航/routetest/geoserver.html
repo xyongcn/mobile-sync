@@ -7,9 +7,9 @@
             border: 1px solid black;
         }
     </style>
-<script  src="http://localhost:8080/geoserver/openlayers/OpenLayers.js"  type="text/javascript"></script>     
+
  <script  type="text/javascript">
-  function init(){
+  function justStart(){
         var bounds = new OpenLayers.Bounds(
                     115.432318, 39.429787,
                     117.533264, 41.059143
@@ -31,14 +31,14 @@
                     "pgrouting:beijingpbf", 
                     "http://localhost:8080/geoserver/pgrouting/wms",
                     {
-                        LAYERS: 'pgrouting:beijingpbf',
+                        LAYERS: 'pgrouting:beijingpbf'
                     }
                 );
             
          var params = {
         	 LAYERS: 'pgrouting:test4',
         	 FORMAT: 'image/png',
-        	 transparent: true ,
+        	 transparent: true 
         	 };
        var  viewparams = [
         'id1:'+id1,  'id2:'+id2
@@ -57,11 +57,12 @@
             map.zoomToMaxExtent();
         }
     </script>
+    <script  src="http://localhost:8080/geoserver/openlayers/OpenLayers.js"  type="text/javascript"></script>     
 </head>
   <body>
       <input id="id1" type = "text" value="10">   </input>
       <input id="id2" type = "text" value="30">   </input>
-      <button type="button" onclick="javascript:init()">addlayer</button>
+      <input type = "button" value = "submit" onclick = "justStart()"></input>
       <div id="map" ></div>
   </body>
 </html>

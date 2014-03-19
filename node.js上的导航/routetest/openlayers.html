@@ -18,6 +18,9 @@
   		<script  src="http://localhost:8080/geoserver/www/Openlayers2/OpenLayers.js"  type="text/javascript">
   		</script>
   		
+  		<script type="text/javascript" src="json2.js">
+  		</script>
+  		
   		<script  type="text/javascript">
 		function onStart(){
 			 var id1 = document.getElementById("id1").value;
@@ -28,10 +31,12 @@
 		}
 		
 		var updatePage1 = function(){
+			alert("2");
 			if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
 					var response = xmlHttp.responseText;
 					var div = document.getElementById("text1");
 					var result = JSON.parse(xmlHttp.responseText);
+					alert("3");
 					routingMap(result);
 			}
 		}
@@ -57,7 +62,7 @@
                 				"pgrouting:beijingpbf", 
                 				"http://localhost:8080/geoserver/pgrouting/wms",
                 				{
-                					LAYERS: 'pgrouting:beijingpbf',
+                					LAYERS: 'pgrouting:beijingpbf'
                 				}
                 			);
                 			map.addLayer(basemap);
@@ -120,7 +125,7 @@
 	<body>  		
 		<input id="id1" type = "text" value="10">   </input>
 		<input id="id2" type = "text" value="30">   </input>
-		<input type = "button" value = "submit" onclick = "javascript:onStart()">
+		<input type = "button" value = "submit" onclick = "onStart()"></input>
 		<div id="map" >
 		</div>
 		<li id = "text1" >
