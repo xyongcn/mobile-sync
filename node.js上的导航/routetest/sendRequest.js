@@ -32,6 +32,6 @@ function sendRequest(data,url,updatePage){
 	xmlHttp.setRequestHeader("Content-Type","application/x-www-form-urlencoded;");
 	xmlHttp.onreadystatechange = updatePage;
 	xmlHttp.send(post);
-	alert(post);
+	//alert(post);
 }
                         

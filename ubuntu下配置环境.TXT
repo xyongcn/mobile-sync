@@ -1,0 +1,77 @@
+﻿本机环境：ubuntu 13.10 amd64
+
+1.安装jdk
+java -version
+#以上命令会显示可以装什么jdk
+apt-get install
+... 
+2.tomcat7
+#下载tomcat7的tar包
+#解压
+./bin/startup.sh
+#成功会显示页面
+#添加管理员账户
+#编辑/conf/tomcat-users.xml
+#添加
+<role rolename="manager-gui"/>  
+     <user username="manager" password="manager" roles="manager-gui"/>  
+#重启tomcat
+./bin/shutdown.sh
+./bin/startup.sh
+2.geoserver
+下载geoserver.war
+放入tomcat7/webapp
+
+3 postgres+postgis+pgrouting
+http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" >> /etc/apt/sources.list'
+wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install Postgresql-9.3-postgis pgadmin3 postgresql-contrib
+sudo su postgres
+psql
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+CREATE EXTENSION fuzzystrmatch;
+CREATE EXTENSION postgis_tiger_geocoder;
+
+#官网安装pgrouting，未尝试
+#http://workshop.pgrouting.org/chapters/installation.html#pgrouting
+#对amd64无法使用，只对i386有用
+
+#amd64安装：
+#http://gis.stackexchange.com/questions/74315/pgrouting-2-0-package-for-postgresql-9-3
+#下载deb安装包：
+#https://packages.debian.org/sid/postgresql-9.3-pgrouting
+#https://packages.debian.org/sid/libboost-system1.54.0
+#https://packages.debian.org/sid/amd64/libcgal10/download
+#https://packages.debian.org/sid/amd64/libboost-thread1.54.0/download
+
+#安装：
+dpkg -i libboost-system1.54.0_1.54.0-5_amd64.deb 
+dpkg -i libboost-thread1.54.0_1.54.0-5_amd64.deb 
+dpkg -i libcgal10_4.2-5+b2_amd64.deb 
+dpkg -i postgresql-9.3-pgrouting_2.0.0-2_amd64.deb
+
+ CREATE EXTENSION pgrouting;
+
+
+#nodejs安装
+#官网下载，解压
+./configure
+make 
+make install
+#安装postgresql连接
+npm install pg
+
+
+#测试：
+#postgis数据库导航使用设置.txt
+#postgresql连接geoserver时可能要新建postgresql用户，windows下无此要求
+
+#连接geoserver 与postgresql数据库在
+#http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
+#http://docs.geoserver.org/stable/en/user/data/database/postgis.html
+#http://docs.geoserver.org/stable/en/user/data/database/sqlview.html
+#有官方文档说明
+#对照自己的配置对可能用到的.js和html文件进行修改
