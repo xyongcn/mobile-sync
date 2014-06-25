@@ -1,0 +1,43 @@
+function showMap(){	
+	var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+    	var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+           	var options = {
+           		projection: toProjection,
+              		displayProjection: fromProjection,
+            		units: "m"
+          	};
+            	map = new OpenLayers.Map('mapdiv',options); 
+      	OpenLayers.IMAGE_RELOAD_ATTEMPTS = 5;
+      	var osm_layer = new OpenLayers.Layer.OSM( 
+      		'OpenStreetMap Layer' 
+      	); 
+	
+	var id1 = document.getElementById("id1").value;
+	var id2 = document.getElementById("id2").value;
+	
+	var params = {
+		LAYERS: 'test1:time',
+		FORMAT: 'image/png',
+		transparent: true 
+	};
+        	 var  viewparams = [
+        	 	'range:'+id2
+        	 ];
+        	 params.viewparams = viewparams.join(';');
+        	 
+        	 var  routinglayer = new OpenLayers.Layer.WMS(
+        	 	"test1:routeExp2",
+        	 	"http://localhost:8080/geoserver/test1/wms",
+        	 	params,
+        	 	{
+			opacity:1,
+			yx : {'EPSG:900913' : true},
+			isBaseLayer: false
+		}
+	);
+	
+	map.addLayers([osm_layer]);
+	map.addLayer(routinglayer);
+	map.setCenter(new OpenLayers.LonLat(12955490, 4854208)); 
+      			map.zoomTo(12);  
+}

@@ -1,0 +1,73 @@
+<html >
+	<head>
+	<style  type="text/css">
+	#mapdiv {
+		width: 900px;
+		height: 600px;
+		border: 1px solid black;
+	}
+	</style>
+
+	<script src="Func/basic.js" type="text/javascript"></script>
+	<script src="Func/PageOp.js" type="text/javascript"></script>
+	<script  src="http://localhost:8080/geoserver/www/Openlayers2/OpenLayers.js"  type="text/javascript"></script>     
+    
+	<script type="text/javascript">
+	var info;
+	var startTime;
+	var map;
+	var routeLayer1,routeLayer2;
+	var justStart = function(){
+		startTime = new Date();
+		var id1 = document.getElementById("id1").value;
+		var id2 = document.getElementById("id2").value;
+		var route = {id1:id1,id2:id2};
+		var reqRouting = JSON.stringify(route);
+		if (  !document.getElementById( "routingFuncJS") ){ 
+			sendRequest(reqRouting,"/routing",updatePage);
+		}
+		else{
+			showMap();
+		}
+		
+	}
+	
+	var updatePage = function(){
+		if(xmlHttp.readyState == 4 && xmlHttp.status == 200){
+			var endTime = new Date();
+			var response = xmlHttp.responseText.split("--");
+			if(response[0]=="geoserver"){
+				showDebug(response[0]);
+				//showDebug(response[1]);
+				includeJS("routingFuncJS",response[1]);
+				showMap();
+			}
+			else{
+				showDebug(response[0]);
+				//showDebug(response[1]);
+				//showDebug(response[2]);
+				info = JSON.parse(response[1]);
+				includeJS("routingFuncJS",response[2]);
+				showMap();
+			}
+			var timeCount = (endTime.getMinutes()-startTime.getMinutes())*60000
+			timeCount += (endTime.getSeconds()-startTime.getSeconds())*1000
+			timeCount += endTime.getMilliseconds();
+			timeCount -= startTime.getMilliseconds();
+			showDebug(startTime.toLocaleString()+"  ;  "+endTime.toLocaleString());
+			showDebug(timeCount);
+		}
+	}
+    </script>
+    </head>
+  <body>
+      <input id="id1" type = "text" value="10">   </input>
+      <input id="id2" type = "text" value="200">   </input>
+      <input type = "button" value = "submit" onclick = "justStart()"></input>
+      <li id = "text1" >
+      	test1
+      </li>
+      <div id="mapdiv" ></div>
+      
+  </body>
+</html>

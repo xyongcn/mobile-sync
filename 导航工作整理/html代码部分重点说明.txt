@@ -1,0 +1,61 @@
+1.缓存
+	1.引用的OSM基底图层自动具有缓存功能
+	2.为Geoserver图层增加缓存功能代码
+		 cacheRead = new OpenLayers.Control.CacheRead();
+           cacheRead.activate();
+           map.addControl(cacheRead);
+           
+          
+          cacheWrite = new OpenLayers.Control.CacheWrite({
+          autoActivate: true,
+          imageFormat: "image/jpeg",
+          eventListeners: {
+           cachefull: function() { alert("Cache full."); }
+          }
+          });
+          map.addControl(cacheWrite);
+2.使用OSM基底图层时坐标系转换
+	var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+    var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+	具体实现参照“鼠标点击加载图层”中的图层显示代码
+3.添加点击功能代码
+	OpenLayers.Control.Click = OpenLayers.Class(
+		  	OpenLayers.Control, {
+		  		defaultHandlerOptions: {
+		  			'single': true,
+		  			'double': false,
+		  			'pixelTolerance': 0,
+		  			'stopSingle': false,
+		  			'stopDouble': false
+		  		},
+		  	initialize: function(options) {
+		  		this.handlerOptions = OpenLayers.Util.extend(
+		  			{}, this.defaultHandlerOptions
+		  		);
+		  		OpenLayers.Control.prototype.initialize.apply(
+		  			this, arguments
+		  		);
+		  		this.handler = new OpenLayers.Handler.Click(
+		  			this, 
+		  			{
+		  				'click': this.trigger
+		  			}, 
+		  			this.handlerOptions
+		  		);
+		  	}, 
+		  	trigger: function(e) {
+		  		var lonlat = map.getLonLatFromPixel(e.xy);
+		  		showDebug("You clicked near " + lonlat.lat + " N, " + lonlat.lon + " E");
+		  		var position = new OpenLayers.LonLat(lonlat.lon,lonlat.lat).transform(epsg_900913, epsg_4326);
+		  		showDebug("You clicked near " +position.lat + " N, " +position.lon + " E");
+		  		var route = {x:position.lon,y:position.lat};
+				var reqRouting = JSON.stringify(route);
+				sendRequest(reqRouting,"/mouseClick",updatePage2);
+		  	}
+		}
+	);
+	
+	var click = new OpenLayers.Control.Click();
+    map.addControl(click);
+    click.activate();
+	

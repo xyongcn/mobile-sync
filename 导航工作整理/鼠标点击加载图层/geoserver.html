@@ -1,0 +1,138 @@
+<html >
+  <head>
+    <style  type="text/css">
+        #mapdiv {
+            width: 900px;
+            height: 600px;
+            border: 1px solid black;
+        }
+    </style>
+<script  src="http://localhost:8080/geoserver/www/Openlayers2/OpenLayers.js"  type="text/javascript"></script>     
+ <script  type="text/javascript">
+var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
+var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+
+OpenLayers.Control.Click = OpenLayers.Class(
+	OpenLayers.Control, {
+		defaultHandlerOptions: {
+		  	'single': true,
+		  	'double': false,
+		  	'pixelTolerance': 0,
+		  	'stopSingle': false,
+		  	'stopDouble': false
+		  },
+		initialize: function(options) {
+		  	this.handlerOptions = OpenLayers.Util.extend(
+		  		{}, this.defaultHandlerOptions
+		  	);
+			  OpenLayers.Control.prototype.initialize.apply(
+		  		this, arguments
+			  );
+		 	 this.handler = new OpenLayers.Handler.Click(
+		  		this, 
+		  		{
+		  			'click': this.trigger
+		  		}, 
+		  		this.handlerOptions
+			);
+		}, 
+		trigger: function(e) {
+		  	var lonlat = map.getLonLatFromPixel(e.xy);
+		  	alert("You clicked near " + lonlat.lat + " N, " + lonlat.lon + " E");
+		  	var position = new OpenLayers.LonLat(lonlat.lon,lonlat.lat).transform(toProjection, fromProjection);
+		  	alert("You clicked near " +position.lat + " N, " +position.lon + " E");
+		  	var x = position.lon*100;
+			var y =position.lat*100;
+			var zonenum = parseInt(x.toFixed(0)*100000)+parseInt(y.toFixed(0));
+			showZone(zonenum);
+		  }
+}); 
+var map;
+var  mouselayer;
+function showZone(zonenum){
+	var params = {
+        	 LAYERS: 'test1:mouseZone1',
+        	 FORMAT: 'image/png',
+        	 transparent: true 
+        	 };
+        	 
+       var  viewparams = [
+        'zone:'+zonenum
+        ];
+        params.viewparams = viewparams.join(';');
+        
+        mouselayer = new OpenLayers.Layer.WMS(
+        	 "test1:mouseZone1",
+                    "http://localhost:8080/geoserver/test1/wms",
+                    params,
+                    {
+                    opacity:1,
+                    yx : {'EPSG:900913' : true},
+                    isBaseLayer: false
+                    }
+          );
+         map.addLayer(mouselayer);
+}
+  function justStart(){
+        var geographic = new OpenLayers.Projection("EPSG:4326");
+            var mercator = new OpenLayers.Projection("EPSG:900913");
+            
+            var options = {
+                projection: mercator,
+                displayProjection: geographic,
+                units: "m"
+            };
+            	
+       map = new OpenLayers.Map('mapdiv',options); 
+      OpenLayers.IMAGE_RELOAD_ATTEMPTS = 5;
+                			
+      var osm_layer = new OpenLayers.Layer.OSM( 
+       'OpenStreetMap Layer' 
+     ); 
+
+        
+        var id1 = document.getElementById("id1").value;
+        var id2 = document.getElementById("id2").value;
+
+         var params = {
+        	 LAYERS: 'test1:time',
+        	 FORMAT: 'image/png',
+        	 transparent: true 
+        	 };
+        	 
+       var  viewparams = [
+        'id1:'+id1,  'id2:'+id2
+        ];
+        params.viewparams = viewparams.join(';');
+        
+        var  routinglayer = new OpenLayers.Layer.WMS(
+        	 "test1:time",
+                    "http://localhost:8080/geoserver/test1/wms",
+                    params,
+                    {
+                    opacity:1,
+                    yx : {'EPSG:900913' : true},
+                    isBaseLayer: false
+                    }
+          );
+                   
+            map.addLayers([osm_layer]);
+            map.addLayer(routinglayer);
+            	 var click = new OpenLayers.Control.Click();
+                	map.addControl(click);
+                	click.activate();
+            map.setCenter(new OpenLayers.LonLat(12955490, 4854208)); 
+      			map.zoomTo(12);  
+        }
+    </script>
+    
+</head>
+  <body>
+      <input id="id1" type = "text" value="10">   </input>
+      <input id="id2" type = "text" value="30">   </input>
+      <input type = "button" value = "submit" onclick = "justStart()"></input>
+      <div id="mapdiv" ></div>
+  </body>
+</html>
+
+   

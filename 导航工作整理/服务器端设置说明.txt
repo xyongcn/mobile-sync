@@ -1,0 +1,120 @@
+1.服务器端软件安装
+	1.geoserver安装配置
+		1.windows
+			下载geoserver windows下安装包，直接安装
+		2.ubuntu
+			下载geoserver的tomcat下使用的框架安装
+			1.安装jdk
+				java -version
+				#以上命令会显示可以装什么jdk
+				apt-get install
+				... 
+			2.tomcat7
+				#下载tomcat7的tar包
+				#解压
+				./bin/startup.sh
+				#成功会显示页面
+				#添加管理员账户
+				#编辑/conf/tomcat-users.xml
+				#添加
+				<role rolename="manager-gui"/>  
+				<user username="manager" password="manager" roles="manager-gui"/>  
+				#重启tomcat
+				./bin/shutdown.sh
+				./bin/startup.sh
+			3.geoserver
+				下载geoserver.war
+				放入tomcat7/webapp	
+	2.postgresql+postgis+pgrouting安装配置
+		1.windows
+			1.下载postgresql windows下安装包，直接安装;
+			2.打开Applicaltion stack builder，选择联网安装，选择spatial extensions中对应版本的POSTGIS
+			3.pgrouting在目前windows版本中自动配置在POSTGIS中
+		2.Ubuntu
+			1.PostgreSQL+POSTGIS
+				http://trac.osgeo.org/postgis/wiki/UsersWikiPostGIS21UbuntuPGSQL93Apt
+				sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" >> /etc/apt/sources.list'
+				wget --quiet -O - http://apt.postgresql.org/pub/repos/apt/ACCC4CF8.asc | sudo apt-key add -
+				sudo apt-get update
+				sudo apt-get install Postgresql-9.3-postgis pgadmin3 postgresql-contrib
+				sudo su postgres
+				psql
+					CREATE EXTENSION postgis;
+					CREATE EXTENSION postgis_topology;
+					CREATE EXTENSION fuzzystrmatch;
+					CREATE EXTENSION postgis_tiger_geocoder;
+			2.pgrouting
+				#官网安装pgrouting，未尝试
+				#http://workshop.pgrouting.org/chapters/installation.html#pgrouting
+				#对amd64无法使用，只对i386有用
+				#amd64安装：
+				#http://gis.stackexchange.com/questions/74315/pgrouting-2-0-package-for-postgresql-9-3
+				#下载deb安装包：
+				#https://packages.debian.org/sid/postgresql-9.3-pgrouting
+				#https://packages.debian.org/sid/libboost-system1.54.0
+				#https://packages.debian.org/sid/amd64/libcgal10/download
+				#https://packages.debian.org/sid/amd64/libboost-thread1.54.0/download
+				#安装：
+				dpkg -i libboost-system1.54.0_1.54.0-5_amd64.deb 
+				dpkg -i libboost-thread1.54.0_1.54.0-5_amd64.deb 
+				dpkg -i libcgal10_4.2-5+b2_amd64.deb 
+				dpkg -i postgresql-9.3-pgrouting_2.0.0-2_amd64.deb
+				sudo su postgres
+				psql
+					CREATE EXTENSION pgrouting;
+2.服务器端数据库配置
+	1.首先创立相应的数据库格式：
+		createdb mydatabase
+		psql mydatabase -c "create extension postgis"
+		psql mydatabase -c "create extension pgrouting"
+	2.下载地图数据
+		Openstreetmap官方网站导出http://metro.teczno.com/
+	3.导入设置地图数据
+		psql
+		\i 地图数据
+		创建索引(记录点的索引方便计算)：
+		create index source_index on beijing("source");
+		create index target_index on beijing("target");
+		检查是否存在length及reverse_cost属性(边的长度属性)：
+		ALTER table beijing add column length double precision;
+		ALTER table beijing add column reverse_cost double precision;
+		update beijing set length=reverse_cost;
+	4.尝试是否能够识别路径(检查)
+		routing=# select * from pgr_dijkstra('select id,source::integer,target::integer, length::double precision as cost from beijingpbf',30,60,false,false);
+	5.在加入中国地区的数据时出现'GBK'与'UTF-8'字符编码问题
+		解决方法为：
+		在数据库下更改：
+		set client_encoding = 'gbk';或set client_encoding = 'UTF8'; 
+	6.使用pgadmin查看数据库数据是否正常
+3.使用Zone的形式设置
+	1.查看数据库中道路经纬度
+		select max(x1),max(x2),max(y1),max(y2),min(x1),min(x2),min(y1),min(y2) from beijingtestzone;
+	2.根据经纬度设置ZoneNum
+		alter table beijingtestzone add column zonenum integer;
+		update beijingtestzone set zonenum=x1*10;
+		update beijingtestzone set zonenum=zonenum*1000+y1*10;
+		select distinct(zonenum) from beijingtestzone;
+		
+		alter table beijingtestzone add column zonenum2 integer;
+		update beijingtestzone set zonenum2=x2*10;
+		update beijingtestzone set zonenum2=zonenum2*1000+y2*10;
+		select count(distinct(zonenum2)) from beijingtestzone;
+4.结合道路状态显示
+	1.如何设置显示方法
+		1.使用QGIS软件打开数据库中的图
+		2.右键图层->属性->样式->基于规则->+(添加新规则)->设置规则
+		3.保存样式，选择SLD文件
+		4.打开Geoserver->styles->add a new style
+		5.在指定图层->发布->样式设置
+		6.部分样式要求图层具有特殊属性，使用时要注意
+	2.添加道路状态表
+		下载表
+			http://os.cs.tsinghua.edu.cn/research/Workflow/dlut2013#head-fc9ec387e37543da6bc18bdbb71df2442f219be2
+		导入表
+		psql
+			\i ...
+	3.同步表到道路表上
+		选择需要的属性新建表
+		create table .. select .. from ... as .. and ... as ..
+		
+			

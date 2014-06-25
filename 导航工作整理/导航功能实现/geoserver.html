@@ -1,0 +1,70 @@
+<html >
+  <head>
+    <style  type="text/css">
+        #map {
+            width: 800px;
+            height: 434px;
+            border: 1px solid black;
+        }
+    </style>
+
+ <script  type="text/javascript">
+  function justStart(){
+       
+          var bounds = new OpenLayers.Bounds(
+                    			115.432318, 39.429787,
+                    			117.533264, 41.059143
+                			);                
+                			var options = {
+                				controls: [],
+                				maxExtent: bounds,
+                				maxResolution: 0.0052055120468164,
+                				projection: "EPSG:4326",
+                				units: 'm'
+                			};
+                			var format = 'image/png';
+                			
+                			map = new OpenLayers.Map('map',{}); 
+                			OpenLayers.IMAGE_RELOAD_ATTEMPTS = 5;
+                			
+                			 var osm_layer = new OpenLayers.Layer.OSM( 
+           			 'OpenStreetMap Layer' 
+        			); 
+
+        
+        var id1 = document.getElementById("id1").value;
+        var id2 = document.getElementById("id2").value;
+        
+            
+         var params = {
+        	 LAYERS: 'pgrouting:test4',
+        	 FORMAT: 'image/png',
+        	 transparent: true 
+        	 };
+       var  viewparams = [
+        'id1:'+id1,  'id2:'+id2
+        ];
+        params.viewparams = viewparams.join(';');
+        
+        var  routinglayer = new OpenLayers.Layer.WMS(
+        	 "pgrouting:test4",
+                    "http://localhost:8080/geoserver/pgrouting/wms",
+                    params,
+                    {opacity:1});
+            map.addLayers([osm_layer,routinglayer]);
+            
+            map.setCenter(new OpenLayers.LonLat(12955490, 4854208)); 
+      			map.zoomTo(12);  
+        }
+    </script>
+    <script  src="http://localhost:8080/geoserver/www/Openlayers2/OpenLayers.js"  type="text/javascript"></script>     
+</head>
+  <body>
+      <input id="id1" type = "text" value="10">   </input>
+      <input id="id2" type = "text" value="30">   </input>
+      <input type = "button" value = "submit" onclick = "justStart()"></input>
+      <div id="map" ></div>
+  </body>
+</html>
+
+   

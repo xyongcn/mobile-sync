@@ -1,0 +1,3 @@
+1.服务器端设置参看另一个txt
+2.“导航功能实现”文件夹内为能够实现两点间导航功能的HTML代码(主要为geoserver.html和openlayers.html)及Geoserver服务器端图层设置截图
+3.“鼠标点击加载图层”文件夹内为能够实现指定点附近道路状态显示功能的HTML代码(主要为Func文件夹内的geoserver2.js和openlayers.js)及Geoserver服务器端图层设置截图
